@@ -7,31 +7,35 @@ on:
 
 jobs:
   build:
-    name: Build for Android
+    name: Build APK with Buildozer
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Install dependencies & Buildozer
-      - name: Install dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip python3-dev git openjdk-17-jdk zip unzip \
-                              build-essential autoconf automake libtool pkg-config \
-                              libffi-dev libssl-dev cmake
-          pip3 install --upgrade pip
-          pip3 install buildozer
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip python3-dev \
+                              autoconf automake libtool pkg-config libffi-dev \
+                              libssl-dev python3-setuptools cmake
 
-      # 3️⃣ Build APK
+      - name: Install Buildozer & Python-for-Android
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install buildozer cython python-for-android
+
       - name: Build APK
         run: |
           buildozer android debug
 
-      # 4️⃣ Upload APK artifact (v4)
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: myapp-apk
